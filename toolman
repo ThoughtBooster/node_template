@@ -1,0 +1,107 @@
+#!/usr/bin/env node
+
+const path = require("path");
+const { exec } = require("child_process");
+const { loadConfig } = require("@thought-booster/quark");
+
+// 读取应用名称。
+const { name: APP_NAME } = loadConfig();
+// 日志目录。
+const LOG_DIR = path.join(__dirname, "./log");
+
+// 注册命令处理函数。
+const COMMAND = {
+  start,
+  stop,
+  reload,
+};
+
+// 执行主函数。
+main();
+
+/**
+ * 主函数，处理命令行参数。
+ */
+async function main() {
+  const argv = process.argv;
+  if (argv.length < 3) {
+    help();
+    process.exit(1);
+  }
+
+  const command = argv[2];
+  if (COMMAND[command] == null) {
+    help();
+    process.exit(1);
+  }
+
+  await COMMAND[command]();
+}
+
+function help() {
+  console.log("Usage:");
+  console.log("\t./toolman [command]");
+  console.log("Command:");
+  console.log("\tstart\tstart the service");
+  console.log("\tstop\tstop the service");
+  console.log("\treload\treload the service");
+  console.log("Tips:");
+  console.log(
+    "1. When it comes out 'permission denied' error, you should execute 'chmod +x toolman' first."
+  );
+}
+
+/**
+ * 启动服务。
+ */
+async function start() {
+  await run("mkdir -p log/");
+  const { stdout } = await run("pm2 start ecosystem.config.js");
+  console.log(stdout);
+}
+
+/**
+ * 停止服务。
+ */
+async function stop() {
+  const { stdout } = await run("pm2 stop ecosystem.config.js");
+  console.log(stdout);
+}
+
+/**
+ * 重启服务。
+ */
+async function reload() {
+  const { stdout } = await run("pm2 reload ecosystem.config.js");
+  console.log(stdout);
+}
+
+/**
+ * 执行 Shell 命令。
+ * @param {string} command
+ * @returns {Promise<{stdout: string, stderr: string}>}
+ */
+function run(command) {
+  return new Promise((resolve, reject) => {
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+}
+
+/**
+ * 获取服务进程 PID 。
+ * @returns {Promise<number[]>}
+ */
+async function get_pids() {
+  const command = `for x in \`ls ~/.pm2/pids/${APP_NAME}*\`; do cat $x; echo ""; done`;
+  const { stdout } = await run(command);
+  return stdout
+    .split("\n")
+    .filter((i) => i)
+    .map((i) => parseInt(i, 10));
+}

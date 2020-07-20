@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es2015",
+    "module": "commonjs",
+    "outDir": "dist/",
+    "declaration": false,
+    "experimentalDecorators": true
+  },
+  "include": ["src/**/*", "test/**/*"]
+}

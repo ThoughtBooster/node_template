@@ -1,0 +1,32 @@
+{
+  "name": "node_template",
+  "version": "0.0.0",
+  "author": "Jiahonzheng <jiahonzheng@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "shx rm -rf bin/ && tsc && shx mkdir -p bin/ && shx cp -r package.json yarn.lock ecosystem.config.js toolman config/ dist/ bin/",
+    "deploy": "scp -r bin/* zaozhi:/home/ubuntu/NodeTemplate && ssh zaozhi 'chmod +7 /home/ubuntu/NodeTemplate/toolman'",
+    "format": "prettier --write \"{src,test}/**/*.{ts,js,json}\"",
+    "start": "yarn start:dev",
+    "start:dev": "cross-env NODE_ENV=dev nodemon"
+  },
+  "dependencies": {
+    "@thought-booster/quark": "../quark_node",
+    "cross-env": "^7.0.2"
+  },
+  "devDependencies": {
+    "husky": "^4.2.5",
+    "nodemon": "^2.0.4",
+    "pm2": "^4.4.0",
+    "prettier": "^2.0.5",
+    "shx": "^0.3.2",
+    "ts-node": "^8.10.2",
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "^3.9.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn format"
+    }
+  }
+}

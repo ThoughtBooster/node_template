@@ -1,0 +1,11 @@
+name = "demo"
+port = 3000
+ridKey = "x-rid"
+
+[code]
+invalid = 1
+success = 0
+unknown = -1
+
+[code.code2msg]
+1000 = "error 1000"
