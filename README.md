@@ -27,4 +27,7 @@ yarn build
 
 # 重启服务（生产环境）
 ./toolman reload
+
+# 伸缩服务（生产环境）
+./toolman scale [num]
 ```

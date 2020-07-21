@@ -14,6 +14,7 @@ const COMMAND = {
   start,
   stop,
   reload,
+  scale,
 };
 
 // 执行主函数。
@@ -35,7 +36,11 @@ async function main() {
     process.exit(1);
   }
 
-  await COMMAND[command]();
+  try {
+    await COMMAND[command]();
+  } catch (err) {
+    console.error(`Err: ${err}`);
+  }
 }
 
 function help() {
@@ -45,6 +50,7 @@ function help() {
   console.log("\tstart\tstart the service");
   console.log("\tstop\tstop the service");
   console.log("\treload\treload the service");
+  console.log("\tscale\tscale up/down the service");
   console.log("Tips:");
   console.log(
     "1. When it comes out 'permission denied' error, you should execute 'chmod +x toolman' first."
@@ -73,6 +79,29 @@ async function stop() {
  */
 async function reload() {
   const { stdout } = await run("pm2 reload ecosystem.config.js");
+  console.log(stdout);
+}
+
+/**
+ * 伸缩服务。
+ */
+async function scale() {
+  if (process.argv.length !== 4) {
+    console.error("Usage: ./toolman scale [num]");
+    console.error(
+      "[num] is a consistent number which the service will scale up or down."
+    );
+    process.exit(1);
+  }
+  const num = parseInt(process.argv[3], 10);
+  if (num <= 0) {
+    console.error("Usage: ./toolman scale [num]");
+    console.error(
+      "[num] is a consistent number which the service will scale up or down."
+    );
+    process.exit(1);
+  }
+  const { stdout } = await run(`pm2 scale ${APP_NAME} ${num}`);
   console.log(stdout);
 }
 
